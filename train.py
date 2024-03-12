@@ -54,6 +54,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
         print(
             f"The #{no_prog_subset} sub-set. Getting train cameras from {start} to {start+prog_train_interval}"
         )
+
         for iteration in range(first_iter, opt.iterations + 1):
             if network_gui.conn is None:
                 network_gui.try_connect()
@@ -80,7 +81,8 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
             # Pick a random Camera
             if not viewpoint_stack:
-                viewpoint_stack = scene.getTrainCameras(no_prog_subset=no_prog_subset).copy()
+                scene.res_scale()
+                viewpoint_stack = scene.getTrainCameras().copy()
             viewpoint_cam = viewpoint_stack.pop(randint(0, len(viewpoint_stack)-1))
 
             # Render
