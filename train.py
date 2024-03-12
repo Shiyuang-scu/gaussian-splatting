@@ -51,10 +51,11 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
     
     for start in range(0, dataset_size, prog_train_interval):
         no_prog_subset = int(start/prog_train_interval)
-        scene.res_scale()
+        
         print(
             f"The #{no_prog_subset} sub-set. Getting train cameras from {start} to {start+prog_train_interval}"
         )
+        scene.res_scale(no_prog_subset)
 
         for iteration in range(first_iter, opt.iterations + 1):
             if network_gui.conn is None:

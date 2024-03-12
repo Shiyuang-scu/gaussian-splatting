@@ -90,11 +90,12 @@ class Scene:
         )
         self.gaussians.save_ply(os.path.join(point_cloud_path, "point_cloud.ply"))
 
-    def res_scale(self, no_prog_subset=0):
+    def res_scale(self, no_prog_subset):
         start = no_prog_subset * self.prog_train_interval
         end = (no_prog_subset + 1) * self.prog_train_interval
         for resolution_scale in self.resolution_scales:
             print("Loading Training Cameras")
+            print(f"Processing images from {start} to {end}")
             self.train_cameras[resolution_scale] = cameraList_from_camInfos(self.scene_info.train_cameras[start:end], resolution_scale, self.args)
 
 
