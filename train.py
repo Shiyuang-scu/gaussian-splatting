@@ -28,7 +28,7 @@ try:
 except ImportError:
     TENSORBOARD_FOUND = False
 
-def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from, prog_train_interval):
+def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from, prog_train_interval, dataset_size):
     first_iter = 0
     tb_writer = prepare_output_and_logger(dataset)
     gaussians = GaussianModel(dataset.sh_degree)
@@ -49,7 +49,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
     progress_bar = tqdm(range(first_iter, opt.iterations), desc="Training progress")
     first_iter += 1
     
-    for start in range(0, len(scene.getTrainCameras()), prog_train_interval):
+    for start in range(0, dataset_size, prog_train_interval):
         no_prog_subset = int(start/prog_train_interval)
         print(
             f"The #{no_prog_subset} sub-set. Getting train cameras from {start} to {start+prog_train_interval}"
@@ -227,6 +227,7 @@ if __name__ == "__main__":
     # so we can save the model and load it again
     # this is the interval at which we save the model
     parser.add_argument("--prog_train_interval", type=int, default = 200) 
+    parser.add_argument("--dataset_size", type=int, default = 500) 
 
     parser.add_argument('--ip', type=str, default="127.0.0.1")
     parser.add_argument('--port', type=int, default=6009)
@@ -247,7 +248,7 @@ if __name__ == "__main__":
     # Start GUI server, configure and run training
     network_gui.init(args.ip, args.port)
     torch.autograd.set_detect_anomaly(args.detect_anomaly)
-    training(lp.extract(args), op.extract(args), pp.extract(args), args.test_iterations, args.save_iterations, args.checkpoint_iterations, args.start_checkpoint, args.debug_from, args.prog_train_interval)
+    training(lp.extract(args), op.extract(args), pp.extract(args), args.test_iterations, args.save_iterations, args.checkpoint_iterations, args.start_checkpoint, args.debug_from, args.prog_train_interval, args.dataset_size)
 
     # All done
     print("\nTraining complete.")
