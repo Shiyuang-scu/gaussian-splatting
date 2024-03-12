@@ -22,13 +22,14 @@ class Scene:
 
     gaussians : GaussianModel
 
-    def __init__(self, args : ModelParams, gaussians : GaussianModel, load_iteration=None, shuffle=True, resolution_scales=[1.0]):
+    def __init__(self, args : ModelParams, gaussians : GaussianModel, prog_train_interval=200, load_iteration=None, shuffle=True, resolution_scales=[1.0]):
         """b
         :param path: Path to colmap scene main folder.
         """
         self.model_path = args.model_path
         self.loaded_iter = None
         self.gaussians = gaussians
+        self.prog_train_interval = prog_train_interval
 
         if load_iteration:
             if load_iteration == -1:
@@ -83,11 +84,20 @@ class Scene:
             self.gaussians.create_from_pcd(scene_info.point_cloud, self.cameras_extent)
 
     def save(self, iteration):
-        point_cloud_path = os.path.join(self.model_path, "point_cloud/iteration_{}".format(iteration))
+        point_cloud_path = os.path.join(
+            self.model_path, f"point_cloud/iteration_{iteration}"
+        )
         self.gaussians.save_ply(os.path.join(point_cloud_path, "point_cloud.ply"))
 
-    def getTrainCameras(self, scale=1.0):
-        return self.train_cameras[scale]
+    def getTrainCameras(self, scale=1.0, no_prog_subset=0):
+        start = no_prog_subset * self.prog_train_interval
+        end = (no_prog_subset + 1) * self.prog_train_interval
+        
+        print(
+            f"The #{no_prog_subset} sub-set. Getting train cameras from {start} to {end}"
+        )
+
+        return self.train_cameras[scale][start:end]
 
     def getTestCameras(self, scale=1.0):
         return self.test_cameras[scale]
