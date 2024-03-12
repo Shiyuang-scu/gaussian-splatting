@@ -51,6 +51,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
     
     for start in range(0, dataset_size, prog_train_interval):
         no_prog_subset = int(start/prog_train_interval)
+        scene.res_scale()
         print(
             f"The #{no_prog_subset} sub-set. Getting train cameras from {start} to {start+prog_train_interval}"
         )
@@ -81,7 +82,6 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
             # Pick a random Camera
             if not viewpoint_stack:
-                scene.res_scale()
                 viewpoint_stack = scene.getTrainCameras().copy()
             viewpoint_cam = viewpoint_stack.pop(randint(0, len(viewpoint_stack)-1))
 
