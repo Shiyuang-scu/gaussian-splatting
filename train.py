@@ -48,9 +48,6 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
     ema_loss_for_log = 0.0
     
     for start in range(0, dataset_size, prog_train_interval):
-        progress_bar = tqdm(range(first_iter, opt.iterations), desc="Training progress")
-        first_iter += 1
-        
         no_prog_subset = int(start/prog_train_interval)
         
         print(
@@ -58,6 +55,8 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
         )
         scene.res_scale(no_prog_subset)
 
+        progress_bar = tqdm(range(first_iter, opt.iterations), desc="Training progress")
+        first_iter += 1
         for iteration in range(first_iter, opt.iterations + 1):
             if network_gui.conn is None:
                 network_gui.try_connect()
