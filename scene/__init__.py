@@ -94,6 +94,7 @@ class Scene:
     def res_scale(self, no_prog_subset):
         start = no_prog_subset * self.prog_train_interval
         end = (no_prog_subset + 1) * self.prog_train_interval
+        end = min(end, len(self.scene_info.train_cameras))
         for resolution_scale in self.resolution_scales:
             print(f"Loading Training Cameras from {start} to {end}")
             self.train_cameras[resolution_scale] = cameraList_from_camInfos(self.scene_info.train_cameras[start:end], resolution_scale, self.args)
