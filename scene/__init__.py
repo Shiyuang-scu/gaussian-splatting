@@ -75,6 +75,7 @@ class Scene:
         for resolution_scale in resolution_scales:
             print("Loading Test Cameras")
             self.test_cameras[resolution_scale] = cameraList_from_camInfos(self.scene_info.test_cameras, resolution_scale, args)
+            print("Test camera: ", len(self.test_cameras[resolution_scale]))
 
         if self.loaded_iter:
             self.gaussians.load_ply(os.path.join(self.model_path,
@@ -96,6 +97,7 @@ class Scene:
         for resolution_scale in self.resolution_scales:
             print(f"Loading Training Cameras from {start} to {end}")
             self.train_cameras[resolution_scale] = cameraList_from_camInfos(self.scene_info.train_cameras[start:end], resolution_scale, self.args)
+            print("Train camera: ", len(self.train_cameras[resolution_scale]))
 
 
     def getTrainCameras(self, scale=1.0):        
