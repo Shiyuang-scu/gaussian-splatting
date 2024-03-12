@@ -92,10 +92,6 @@ class Scene:
     def getTrainCameras(self, scale=1.0, no_prog_subset=0):
         start = no_prog_subset * self.prog_train_interval
         end = (no_prog_subset + 1) * self.prog_train_interval
-        
-        print(
-            f"The #{no_prog_subset} sub-set. Getting train cameras from {start} to {end}"
-        )
 
         return self.train_cameras[scale][start:end]
 
