@@ -144,8 +144,8 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                     #         f"{scene.model_path}/chkpnt{str(iteration)}.pth",
                     #     )
 
-        print(f"\n[#{no_prog_subset} sub-set] Saving Gaussians")
-        scene.save(no_prog_subset)
+            print(f"\n[#{no_prog_subset} sub-set] Saving Gaussians")
+            scene.save(no_prog_subset)
                     
 def prepare_output_and_logger(args):    
     if not args.model_path:
