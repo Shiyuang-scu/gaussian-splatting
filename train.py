@@ -46,7 +46,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
     viewpoint_stack = None
     ema_loss_for_log = 0.0
 
-    for _ in range(100):
+    for _ in range(150):
         for start in list(range(0, dataset_size, prog_train_interval))[:-1]:
             no_prog_subset = int(start/prog_train_interval)
 
