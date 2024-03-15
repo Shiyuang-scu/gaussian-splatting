@@ -45,6 +45,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
     viewpoint_stack = None
     ema_loss_for_log = 0.0
+    total_iteration = 0
 
     for _ in range(150):
         scene.shuffle()
@@ -61,6 +62,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             progress_bar = tqdm(range(first_iter, opt.iterations), desc="Training progress")
             first_iter += 1
             for iteration in range(first_iter, opt.iterations + 1):
+                total_iteration += 1
                 if network_gui.conn is None:
                     network_gui.try_connect()
                 while network_gui.conn != None:
@@ -78,10 +80,12 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
                 iter_start.record()
 
-                gaussians.update_learning_rate(iteration)
+                # gaussians.update_learning_rate(iteration)
+                gaussians.update_learning_rate(total_iteration)
 
-                # Every 1000 its we increase the levels of SH up to a maximum degree
-                if iteration % 1000 == 0:
+                # # Every 1000 its we increase the levels of SH up to a maximum degree
+                # if iteration % 1000 == 0:
+                if total_iteration % 1000 == 0:
                     gaussians.oneupSHdegree()
 
                 # Pick a random Camera
@@ -90,7 +94,8 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                 viewpoint_cam = viewpoint_stack.pop(randint(0, len(viewpoint_stack)-1))
 
                 # Render
-                if (iteration - 1) == debug_from:
+                # if (iteration - 1) == debug_from:
+                if (total_iteration - 1) == debug_from:
                     pipe.debug = True
 
                 bg = torch.rand((3), device="cuda") if opt.random_background else background
@@ -109,29 +114,43 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                 with torch.no_grad():
                     # Progress bar
                     ema_loss_for_log = 0.4 * loss.item() + 0.6 * ema_loss_for_log
-                    if iteration % 10 == 0:
+                    # if iteration % 10 == 0:
+                    if total_iteration % 10 == 0:
                         progress_bar.set_postfix({"Loss": f"{ema_loss_for_log:.7f}"})
                         progress_bar.update(10)
-                    if iteration == opt.iterations:
-                        progress_bar.close()
+                    # if iteration == opt.iterations:
+                        # progress_bar.close()
 
                     # Log and save
-                    training_report(tb_writer, iteration, Ll1, loss, l1_loss, iter_start.elapsed_time(iter_end), testing_iterations, scene, render, (pipe, background))
+                    # training_report(tb_writer, iteration, Ll1, loss, l1_loss, iter_start.elapsed_time(iter_end), testing_iterations, scene, render, (pipe, background))
+                    training_report(tb_writer, total_iteration, Ll1, loss, l1_loss, iter_start.elapsed_time(iter_end), testing_iterations, scene, render, (pipe, background))
                     # if (iteration in saving_iterations):
                     #     print(f"\n[ITER {iteration}] Saving Gaussians")
                     #     scene.save(iteration)
 
+                    # # Densification
+                    # if iteration < opt.densify_until_iter:
+                    #     # Keep track of max radii in image-space for pruning
+                    #     gaussians.max_radii2D[visibility_filter] = torch.max(gaussians.max_radii2D[visibility_filter], radii[visibility_filter])
+                    #     gaussians.add_densification_stats(viewspace_point_tensor, visibility_filter)
+
+                    #     if iteration > opt.densify_from_iter and iteration % opt.densification_interval == 0:
+                    #         size_threshold = 20 if iteration > opt.opacity_reset_interval else None
+                    #         gaussians.densify_and_prune(opt.densify_grad_threshold, 0.005, scene.cameras_extent, size_threshold)
+
+                    #     if iteration % opt.opacity_reset_interval == 0 or (dataset.white_background and iteration == opt.densify_from_iter):
+                    #         gaussians.reset_opacity()
                     # Densification
-                    if iteration < opt.densify_until_iter:
+                    if total_iteration < opt.densify_until_iter:
                         # Keep track of max radii in image-space for pruning
                         gaussians.max_radii2D[visibility_filter] = torch.max(gaussians.max_radii2D[visibility_filter], radii[visibility_filter])
                         gaussians.add_densification_stats(viewspace_point_tensor, visibility_filter)
 
-                        if iteration > opt.densify_from_iter and iteration % opt.densification_interval == 0:
-                            size_threshold = 20 if iteration > opt.opacity_reset_interval else None
+                        if total_iteration > opt.densify_from_iter and total_iteration % opt.densification_interval == 0:
+                            size_threshold = 20 if total_iteration > opt.opacity_reset_interval else None
                             gaussians.densify_and_prune(opt.densify_grad_threshold, 0.005, scene.cameras_extent, size_threshold)
 
-                        if iteration % opt.opacity_reset_interval == 0 or (dataset.white_background and iteration == opt.densify_from_iter):
+                        if total_iteration % opt.opacity_reset_interval == 0 or (dataset.white_background and total_iteration == opt.densify_from_iter):
                             gaussians.reset_opacity()
 
                     # Optimizer step
