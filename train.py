@@ -29,6 +29,7 @@ except ImportError:
     TENSORBOARD_FOUND = False
 
 def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from, prog_train_interval, dataset_size):
+    first_iter = 0
     tb_writer = prepare_output_and_logger(dataset)
     gaussians = GaussianModel(dataset.sh_degree)
     scene = Scene(dataset, gaussians, prog_train_interval)
@@ -45,8 +46,11 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
     viewpoint_stack = None
     ema_loss_for_log = 0.0
+    
     total_iteration = 0
-
+    progress_bar = tqdm(range(first_iter, opt.iterations), desc="Training progress")
+    first_iter += 1
+    
     for _ in range(150):
         scene.shuffle()
         print(f"Starting training Iter #{_}...")
@@ -58,9 +62,6 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             )
             scene.res_scale(no_prog_subset)
 
-            first_iter = 0
-            progress_bar = tqdm(range(first_iter, opt.iterations), desc="Training progress")
-            first_iter += 1
             for iteration in range(first_iter, opt.iterations + 1):
                 total_iteration += 1
                 if network_gui.conn is None:
