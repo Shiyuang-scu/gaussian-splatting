@@ -48,6 +48,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
     for _ in range(150):
         scene.shuffle()
+        print(f"Starting training Iter #{_}...")
         for start in list(range(0, dataset_size, prog_train_interval)):
             no_prog_subset = int(start/prog_train_interval)
 
