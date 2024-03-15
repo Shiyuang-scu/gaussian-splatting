@@ -49,7 +49,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
     
     total_iteration = 0
     # progress_bar = tqdm(range(first_iter, opt.iterations), desc="Training progress")
-    progress_bar = tqdm(range(first_iter, 30000), desc="Training progress")
+    progress_bar = tqdm(range(first_iter, dataset_size*150), desc="Training progress")
     first_iter += 1
     
     for _ in range(150):
