@@ -100,6 +100,8 @@ class Scene:
             self.train_cameras[resolution_scale] = cameraList_from_camInfos(self.scene_info.train_cameras[start:end], resolution_scale, self.args)
             print("Train camera: ", len(self.train_cameras[resolution_scale]))
 
+    def shuffle(self):
+        random.shuffle(self.scene_info.train_cameras)
 
     def getTrainCameras(self, scale=1.0):        
         return self.train_cameras[scale]
