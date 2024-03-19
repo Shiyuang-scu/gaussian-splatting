@@ -60,7 +60,8 @@ device = "cpu"
 # device = "cuda"
 
 save_iter_list = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000]
-test_iter_list = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000]
+# test_iter_list = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000]
+test_iter_list = [5000*i for i in range(1,41)]
 checkpoint_iter_list = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000]
 # checkpoint_path = os.path.join(output_dir, "chkpnt15000.pth")
 train_script = "/home/yuang/Desktop/gaussian-splatting/train.py"
