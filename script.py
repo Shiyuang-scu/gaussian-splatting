@@ -30,7 +30,8 @@ python render.py
 
 '''
 Evaluating
-
+python metrics.py 
+-m {model_dir} 
 '''
 
 
@@ -41,7 +42,7 @@ Evaluating
 SUBSET = True # train with subset of the dataset 
 # SUBSET = False # train with the whole dataset
 if SUBSET:
-    n = 750
+    n = 1250
     source_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/source/eyefultower/apartment_{n}/"
     output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/apartment/{n}/"
 else:
@@ -98,17 +99,11 @@ command = [
 subprocess.run(command)
 torch.cuda.empty_cache()
 
-try:
-    command = [
-        'python', eva_script,
-        '-m', output_dir,
-        ]
-    subprocess.run(command)
-except Exception:
-    command = [
-        'python', eva_script,
-        '-m', output_dir,
-        '-d', 'cpu',
-        ]
-    subprocess.run(command)
+
+command = [
+    'python', eva_script,
+    '-m', output_dir,
+    '-d', 'cpu',
+    ]
+subprocess.run(command)
 torch.cuda.empty_cache()
