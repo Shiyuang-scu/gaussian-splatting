@@ -54,8 +54,6 @@ prog_train_interval = 100
 # iteration_num = n * 150
 iteration_num = prog_train_interval
 
-
-
 Path(output_dir).mkdir(parents=True, exist_ok=True) # if output_dir does not exist, create the directory
 device = "cpu"
 # device = "cuda"
@@ -91,6 +89,7 @@ torch.cuda.empty_cache()
 render_script = "/home/yuang/Desktop/gaussian-splatting/render.py"
 eva_script = "/home/yuang/Desktop/gaussian-splatting/metrics.py"
 
+try:
 command = [
     'python', render_script,
     '-m', output_dir,
@@ -99,10 +98,17 @@ command = [
 subprocess.run(command)
 torch.cuda.empty_cache()
 
-command = [
-    'python', eva_script,
-    '-m', output_dir,
-    '-d', 'cpu',
-    ]
-subprocess.run(command)
+try:
+    command = [
+        'python', eva_script,
+        '-m', output_dir,
+        ]
+    subprocess.run(command)
+except:
+    command = [
+        'python', eva_script,
+        '-m', output_dir,
+        '-d', 'cpu',
+        ]
+    subprocess.run(command)
 torch.cuda.empty_cache()
