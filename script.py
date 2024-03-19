@@ -50,6 +50,7 @@ else:
     source_dir = "/home/yuang/Desktop/3d_gaussian_splat/dataset/source/eyefultower/apartment/"
     output_dir = "/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/apartment/all/"
 
+dataset_size = int(n*0.8)
 
 prog_train_interval = 100
 # iteration_num = n * 150
@@ -61,7 +62,7 @@ device = "cpu"
 
 save_iter_list = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000]
 # test_iter_list = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000]
-test_iter_list = [5000*i for i in range(1,41)]
+test_iter_list = [5000*i for i in range(1,dataset_size//5000+1)]
 checkpoint_iter_list = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000]
 # checkpoint_path = os.path.join(output_dir, "chkpnt15000.pth")
 train_script = "/home/yuang/Desktop/gaussian-splatting/train.py"
@@ -77,7 +78,7 @@ command = [
     '--iterations', str(iteration_num),
     '--eval',
     '--prog_train_interval', str(prog_train_interval),
-    '--dataset_size', str(int(n*0.8)),
+    '--dataset_size', str(dataset_size),
     '--save_iterations'] + [str(iteration) for iteration in save_iter_list] + \
     ['--test_iterations'] + [str(iteration) for iteration in test_iter_list] + \
     ['--checkpoint_iterations'] + [str(iteration) for iteration in checkpoint_iter_list] \
