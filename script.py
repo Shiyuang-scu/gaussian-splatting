@@ -89,7 +89,7 @@ torch.cuda.empty_cache()
 render_script = "/home/yuang/Desktop/gaussian-splatting/render.py"
 eva_script = "/home/yuang/Desktop/gaussian-splatting/metrics.py"
 
-try:
+
 command = [
     'python', render_script,
     '-m', output_dir,
@@ -104,7 +104,7 @@ try:
         '-m', output_dir,
         ]
     subprocess.run(command)
-except:
+except Exception:
     command = [
         'python', eva_script,
         '-m', output_dir,
