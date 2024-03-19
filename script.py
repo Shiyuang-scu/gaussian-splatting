@@ -84,8 +84,25 @@ command = [
     # + ['--start_checkpoint', checkpoint_path]
 
 subprocess.run(command)
-
 torch.cuda.empty_cache()
 
 
+# Rendering and Evaluating
+render_script = "/home/yuang/Desktop/gaussian-splatting/render.py"
+eva_script = "/home/yuang/Desktop/gaussian-splatting/metrics.py"
 
+command = [
+    'python', render_script,
+    '-m', output_dir,
+    '--skip_train',
+    ]
+subprocess.run(command)
+torch.cuda.empty_cache()
+
+command = [
+    'python', eva_script,
+    '-m', output_dir,
+    '-d', 'cpu',
+    ]
+subprocess.run(command)
+torch.cuda.empty_cache()
