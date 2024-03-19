@@ -109,7 +109,9 @@ if __name__ == "__main__":
     if args.device == "cuda":
         device = torch.device("cuda:0")
         torch.cuda.set_device(device)
-    else:
+    elif args.device == "cpu":
         device = torch.device("cpu")
+    else:
+        raise ValueError("Invalid device, please use 'cuda' or 'cpu'")
         
     evaluate(args.model_paths, args.device)
