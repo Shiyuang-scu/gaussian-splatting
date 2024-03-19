@@ -8,7 +8,7 @@
 #
 # For inquiries contact  george.drettakis@inria.fr
 #
-
+import sys
 from pathlib import Path
 import os
 from PIL import Image
@@ -90,7 +90,10 @@ def evaluate(model_paths):
             with open(f"{scene_dir}/per_view.json", 'w') as fp:
                 json.dump(per_view_dict[scene_dir], fp, indent=True)
         except Exception:
+            # print out the system error
+            print(sys.exc_info())
             print("Unable to compute metrics for model", scene_dir)
+            # print("Unable to compute metrics for model", scene_dir)
 
 if __name__ == "__main__":
     device = torch.device("cuda:0")
