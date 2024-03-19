@@ -39,7 +39,7 @@ class Scene:
                 self.loaded_iter = searchForMaxIteration(os.path.join(self.model_path, "point_cloud"))
             else:
                 self.loaded_iter = load_iteration
-            print("Loading trained model at iteration {}".format(self.loaded_iter))
+            print(f"Loading trained model at iteration {self.loaded_iter}")
 
         self.train_cameras = {}
         self.test_cameras = {}
@@ -55,14 +55,12 @@ class Scene:
         if not self.loaded_iter:
             with open(self.scene_info.ply_path, 'rb') as src_file, open(os.path.join(self.model_path, "input.ply") , 'wb') as dest_file:
                 dest_file.write(src_file.read())
-            json_cams = []
             camlist = []
             if self.scene_info.test_cameras:
                 camlist.extend(self.scene_info.test_cameras)
             if self.scene_info.train_cameras:
                 camlist.extend(self.scene_info.train_cameras)
-            for id, cam in enumerate(camlist):
-                json_cams.append(camera_to_JSON(id, cam))
+            json_cams = [camera_to_JSON(id, cam) for id, cam in enumerate(camlist)]
             with open(os.path.join(self.model_path, "cameras.json"), 'w') as file:
                 json.dump(json_cams, file)
 
@@ -78,10 +76,14 @@ class Scene:
             print("Test camera: ", len(self.test_cameras[resolution_scale]))
 
         if self.loaded_iter:
-            self.gaussians.load_ply(os.path.join(self.model_path,
-                                                           "point_cloud",
-                                                           "iteration_" + str(self.loaded_iter),
-                                                           "point_cloud.ply"))
+            self.gaussians.load_ply(
+                os.path.join(
+                    self.model_path,
+                    "point_cloud",
+                    f"iteration_{str(self.loaded_iter)}",
+                    "point_cloud.ply",
+                )
+            )
         else:
             self.gaussians.create_from_pcd(self.scene_info.point_cloud, self.cameras_extent)
 

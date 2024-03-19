@@ -169,6 +169,12 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
             print(f"\n[#{no_prog_subset} sub-set] Saving Gaussians")
             scene.save(no_prog_subset)
+    
+    print(f"\n[ITER {total_iteration}] Saving Checkpoint")
+    torch.save(
+        (gaussians.capture(), total_iteration),
+        f"{scene.model_path}/chkpnt{str(total_iteration)}.pth",
+    )
                     
 def prepare_output_and_logger(args):    
     if not args.model_path:
