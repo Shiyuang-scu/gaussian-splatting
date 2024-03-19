@@ -115,3 +115,5 @@ if __name__ == "__main__":
         raise ValueError("Invalid device, please use 'cuda' or 'cpu'")
         
     evaluate(args.model_paths, args.device)
+    
+    torch.cuda.empty_cache() # Free up memory
