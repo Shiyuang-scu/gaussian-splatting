@@ -49,7 +49,8 @@ source_dir = "/home/yuang/Desktop/3d_gaussian_splat/dataset/source/eyefultower/a
 output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/apartment/subset_{n}/"
 
 dataset_size = n
-training_set_size = int(dataset_size*0.8)
+# training_set_size = int(dataset_size*0.8)
+training_set_size = dataset_size
 prog_train_interval = 100
 # iteration_num = n * 150
 iteration_num = prog_train_interval
@@ -89,20 +90,21 @@ torch.cuda.empty_cache()
 render_script = "/home/yuang/Desktop/gaussian-splatting/render.py"
 eva_script = "/home/yuang/Desktop/gaussian-splatting/metrics.py"
 
-# print(f"------------\nRendering {output_dir}------------\n")
-# command = [
-#     'python', render_script,
-#     '-m', output_dir,
-#     '--skip_train',
-#     ]
-# subprocess.run(command)
-# torch.cuda.empty_cache()
+print(f"------------\nRendering {output_dir}------------\n")
+command = [
+    'python', render_script,
+    '-m', output_dir,
+    '--skip_train',
+    ]
+subprocess.run(command)
+torch.cuda.empty_cache()
 
-# print(f"------------\nEvaluating {output_dir}------------\n")
-# command = [
-#     'python', eva_script,
-#     '-m', output_dir,
-#     '-d', 'cpu',
-#     ]
-# subprocess.run(command)
-# torch.cuda.empty_cache()
+print(f"------------\nEvaluating {output_dir}------------\n")
+command = [
+    'python', eva_script,
+    '-m', output_dir,
+    '-d', 'cpu',
+    ]
+subprocess.run(command)
+torch.cuda.empty_cache()
+
