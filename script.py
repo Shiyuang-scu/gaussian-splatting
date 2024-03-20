@@ -102,12 +102,12 @@ command = [
 subprocess.run(command)
 torch.cuda.empty_cache()
 
-print(f"------------------------\nEvaluating {output_dir}\n------------------------")
-command = [
-    'python', eva_script,
-    '-m', output_dir,
-    '-d', 'cpu',
-    ]
-subprocess.run(command)
-torch.cuda.empty_cache()
+# print(f"------------------------\nEvaluating {output_dir}\n------------------------")
+# command = [
+#     'python', eva_script,
+#     '-m', output_dir,
+#     '-d', 'cpu',
+#     ]
+# subprocess.run(command)
+# torch.cuda.empty_cache()
 
