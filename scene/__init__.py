@@ -13,7 +13,7 @@ import os
 import random
 import json
 from utils.system_utils import searchForMaxIteration
-from scene.dataset_readers import sceneLoadTypeCallbacks
+from scene.dataset_readers import sceneLoadTypeCallbacks, SceneInfo
 from scene.gaussian_model import GaussianModel
 from arguments import ModelParams
 from utils.camera_utils import cameraList_from_camInfos, camera_to_JSON
@@ -121,11 +121,18 @@ class Scene:
             length = len(self.scene_info.train_cameras)
             interval = length / self.dataset_size
             index = 0
-            selected_files = []
+            selected_train_cameras = []
             while length < self.dataset_size and index < length:
-                selected_files.append(self.scene_info.train_cameras[int(index)])
+                selected_train_cameras.append(self.scene_info.train_cameras[int(index)])
                 index += interval
-            self.scene_info.train_cameras = selected_files
+            # create a new class to replace the old one
+            self.scene_info = SceneInfo(
+                point_cloud=self.scene_info.point_cloud,
+                train_cameras=selected_train_cameras,
+                test_cameras=self.scene_info.test_cameras,
+                nerf_normalization=self.scene_info.nerf_normalization,
+                ply_path=self.scene_info.ply_path
+            )
             print(f"Using subset of {len(self.scene_info.train_cameras)}/{self.dataset_size} cameras")
         else:
             print(f"Using full training set of {len(self.scene_info.train_cameras)} cameras")
