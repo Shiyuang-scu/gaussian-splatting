@@ -14,6 +14,7 @@ import numpy as np
 from utils.general_utils import PILtoTorch
 from utils.graphics_utils import fov2focal
 from PIL import Image
+import sys
 
 WARNED = False
 
@@ -61,8 +62,13 @@ def loadCam(args, id, cam_info, resolution_scale):
 
 def cameraList_from_camInfos(cam_infos, resolution_scale, args):
     camera_list = []
-
+    length = len(cam_infos)
     for id, c in enumerate(cam_infos):
+        sys.stdout.write('\r')
+        # the exact output you're looking for:
+        sys.stdout.write(f"Reading camera {id + 1}/{length}")
+        sys.stdout.flush()
+
         camera_list.append(loadCam(args, id, c, resolution_scale))
 
     return camera_list
