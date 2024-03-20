@@ -29,10 +29,11 @@ except ImportError:
     TENSORBOARD_FOUND = False
 
 def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from, prog_train_interval, dataset_size):
+    train_set_size = int(dataset_size * 0.8)
     first_iter = 0
     tb_writer = prepare_output_and_logger(dataset)
     gaussians = GaussianModel(dataset.sh_degree)
-    scene = Scene(dataset, gaussians, prog_train_interval)
+    scene = Scene(args=dataset, gaussians=gaussians, prog_train_interval=prog_train_interval, dataset_size=dataset_size)
     gaussians.training_setup(opt)
     if checkpoint:
         (model_params, first_iter) = torch.load(checkpoint)
@@ -49,13 +50,13 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
     
     total_iteration = 0
     # progress_bar = tqdm(range(first_iter, opt.iterations), desc="Training progress")
-    progress_bar = tqdm(range(first_iter, dataset_size*150), desc="Training progress")
+    progress_bar = tqdm(range(first_iter, train_set_size*150), desc="Training progress")
     first_iter += 1
     
     for _ in range(150):
         scene.shuffle()
         print(f"Starting training Iter #{_}...")
-        for start in list(range(0, dataset_size, prog_train_interval)):
+        for start in list(range(0, train_set_size, prog_train_interval)):
             no_prog_subset = int(start/prog_train_interval)
 
             print(

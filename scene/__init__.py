@@ -22,7 +22,7 @@ class Scene:
 
     gaussians : GaussianModel
 
-    def __init__(self, args : ModelParams, gaussians : GaussianModel, prog_train_interval=200, load_iteration=None, shuffle=True, resolution_scales=[1.0]):
+    def __init__(self, args : ModelParams, gaussians : GaussianModel, prog_train_interval=200, dataset_size=1000, load_iteration=None, shuffle=True, resolution_scales=[1.0]):
         """b
         :param path: Path to colmap scene main folder.
         """
@@ -30,6 +30,7 @@ class Scene:
         self.loaded_iter = None
         self.gaussians = gaussians
         self.prog_train_interval = prog_train_interval
+        self.dataset_size = dataset_size
         self.resolution_scales = resolution_scales
         self.args = args
         self.scene_info = None
@@ -51,6 +52,9 @@ class Scene:
             self.scene_info = sceneLoadTypeCallbacks["Blender"](args.source_path, args.white_background, args.eval)
         else:
             assert False, "Could not recognize scene type!"
+
+        # select images to form a sub-set for training
+        self.downsample_train_set()
 
         if not self.loaded_iter:
             with open(self.scene_info.ply_path, 'rb') as src_file, open(os.path.join(self.model_path, "input.ply") , 'wb') as dest_file:
@@ -110,3 +114,18 @@ class Scene:
 
     def getTestCameras(self, scale=1.0):
         return self.test_cameras[scale]
+    
+
+    def downsample_train_set(self):
+        if self.dataset_size < len(self.scene_info.train_cameras):
+            length = len(self.scene_info.train_cameras)
+            interval = length / self.dataset_size
+            index = 0
+            selected_files = []
+            while length < self.dataset_size and index < length:
+                selected_files.append(self.scene_info.train_cameras[int(index)])
+                index += interval
+            self.scene_info.train_cameras = selected_files
+            print(f"Using subset of {len(self.scene_info.train_cameras)}/{self.dataset_size} cameras")
+        else:
+            print(f"Using full training set of {len(self.scene_info.train_cameras)} cameras")

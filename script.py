@@ -38,19 +38,12 @@ python metrics.py
 
 
 # Training
-SUBSET = True # train with subset of the dataset 
-# SUBSET = False # train with the whole dataset
-if SUBSET:
-    n = 1500
-    source_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/source/eyefultower/apartment_{n}/"
-    output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/apartment/{n}/"
-else:
-    n = 4000
-    source_dir = "/home/yuang/Desktop/3d_gaussian_splat/dataset/source/eyefultower/apartment/"
-    output_dir = "/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/apartment/all/"
+n = 1500 # number of images in the subset of the dataset
+source_dir = "/home/yuang/Desktop/3d_gaussian_splat/dataset/source/eyefultower/apartment/"
+output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/apartment/subset_{n}/"
 
-dataset_size = int(n*0.8)
-
+dataset_size = n
+training_set_size = int(dataset_size*0.8)
 prog_train_interval = 100
 # iteration_num = n * 150
 iteration_num = prog_train_interval
@@ -61,7 +54,7 @@ device = "cpu"
 
 save_iter_list = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000]
 # test_iter_list = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000]
-test_iter_list = [5000*i for i in range(1,dataset_size*150//5000+1)]
+test_iter_list = [5000*i for i in range(1,training_set_size*150//5000+1)]
 checkpoint_iter_list = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000]
 # checkpoint_path = os.path.join(output_dir, "chkpnt15000.pth")
 train_script = "/home/yuang/Desktop/gaussian-splatting/train.py"
