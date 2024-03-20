@@ -54,7 +54,7 @@ class Scene:
             assert False, "Could not recognize scene type!"
 
         # select images to form a sub-set for training
-        self.downsample_train_set()
+        self.downsample_train_set(self.scene_info, self.dataset_size)
 
         if not self.loaded_iter:
             with open(self.scene_info.ply_path, 'rb') as src_file, open(os.path.join(self.model_path, "input.ply") , 'wb') as dest_file:
@@ -116,23 +116,24 @@ class Scene:
         return self.test_cameras[scale]
     
 
-    def downsample_train_set(self):
-        if self.dataset_size < len(self.scene_info.train_cameras):
-            length = len(self.scene_info.train_cameras)
-            interval = length / self.dataset_size
+    def downsample_train_set(self, scene_info, dataset_size):
+        if dataset_size < len(scene_info.train_cameras):
+            length = len(scene_info.train_cameras)
+            interval = length / dataset_size
             index = 0
             selected_train_cameras = []
-            while length < self.dataset_size and index < length:
-                selected_train_cameras.append(self.scene_info.train_cameras[int(index)])
+            print(scene_info.train_cameras)
+            while length < dataset_size and index < length:
+                selected_train_cameras.append(scene_info.train_cameras[int(index)])
                 index += interval
             # create a new class to replace the old one
             self.scene_info = SceneInfo(
-                point_cloud=self.scene_info.point_cloud,
+                point_cloud=scene_info.point_cloud,
                 train_cameras=selected_train_cameras,
-                test_cameras=self.scene_info.test_cameras,
-                nerf_normalization=self.scene_info.nerf_normalization,
-                ply_path=self.scene_info.ply_path
+                test_cameras=scene_info.test_cameras,
+                nerf_normalization=scene_info.nerf_normalization,
+                ply_path=scene_info.ply_path
             )
-            print(f"Using subset of {len(self.scene_info.train_cameras)}/{self.dataset_size} cameras")
+            print(f"Using subset of {len(self.scene_info.train_cameras)}/{dataset_size} cameras")
         else:
-            print(f"Using full training set of {len(self.scene_info.train_cameras)} cameras")
+            print(f"Using full training set of {len(scene_info.train_cameras)} cameras")
