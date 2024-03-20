@@ -66,11 +66,11 @@ def cameraList_from_camInfos(cam_infos, resolution_scale, args):
     for id, c in enumerate(cam_infos):
         sys.stdout.write('\r')
         # the exact output you're looking for:
-        sys.stdout.write(f"Reading camera {id + 1}/{length}\n")
+        sys.stdout.write(f"Reading camera {id + 1}/{length}")
         sys.stdout.flush()
 
         camera_list.append(loadCam(args, id, c, resolution_scale))
-
+    sys.stdout.write('\r')
     return camera_list
 
 def camera_to_JSON(id, camera : Camera):
