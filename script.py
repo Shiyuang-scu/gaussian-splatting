@@ -4,6 +4,8 @@ import sys
 from pathlib import Path
 import time
 import torch
+from argparse import ArgumentParser, Namespace
+
 '''
 Training
 python train.py 
@@ -34,11 +36,15 @@ python metrics.py
 -m {model_dir} 
 '''
 
+parser = ArgumentParser(description="Training script parameters")
+parser.add_argument("--size_of_subset", type=int, default = 1000)
+args = parser.parse_args(sys.argv[1:])
 
 
 
 # Training
-n = 1500 # number of images in the subset of the dataset
+n = args.size_of_subset # number of images in the subset of the dataset
+
 source_dir = "/home/yuang/Desktop/3d_gaussian_splat/dataset/source/eyefultower/apartment/"
 output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/apartment/subset_{n}/"
 
@@ -79,11 +85,9 @@ command = [
 subprocess.run(command)
 torch.cuda.empty_cache()
 
-
 # Rendering and Evaluating
 render_script = "/home/yuang/Desktop/gaussian-splatting/render.py"
 eva_script = "/home/yuang/Desktop/gaussian-splatting/metrics.py"
-
 
 command = [
     'python', render_script,
