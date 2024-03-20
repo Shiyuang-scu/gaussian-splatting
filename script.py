@@ -37,12 +37,11 @@ python metrics.py
 
 
 
-
 # Training
 SUBSET = True # train with subset of the dataset 
 # SUBSET = False # train with the whole dataset
 if SUBSET:
-    n = 1250
+    n = 1500
     source_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/source/eyefultower/apartment_{n}/"
     output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/apartment/{n}/"
 else:
