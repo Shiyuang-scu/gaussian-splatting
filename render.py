@@ -31,7 +31,7 @@ def render_set(model_path, name, iteration, views, gaussians, pipeline, backgrou
     for idx, view in enumerate(tqdm(views, desc="Rendering progress")):
         rendering = render(view, gaussians, pipeline, background)["render"]
         gt = view.original_image[0:3, :, :]
-        print(view.uid, view.image_name, view.colmap_id, view.R, view.T, view.FoVx, view.FoVy, view.image_width, view.image_height)
+        # print(view.uid, view.image_name, view.colmap_id, view.R, view.T, view.FoVx, view.FoVy, view.image_width, view.image_height)
         torchvision.utils.save_image(rendering, os.path.join(render_path, '{0:05d}'.format(idx) + ".png"))
         torchvision.utils.save_image(gt, os.path.join(gts_path, '{0:05d}'.format(idx) + ".png"))
 
