@@ -29,7 +29,7 @@ class CameraInfo(NamedTuple):
     T: np.array
     FovY: np.array
     FovX: np.array
-    image: np.array
+    # image: np.array
     image_path: str
     image_name: str
     width: int
@@ -96,14 +96,21 @@ def readColmapCameras(cam_extrinsics, cam_intrinsics, images_folder):
 
         image_path = os.path.join(images_folder, os.path.basename(extr.name))
         image_name = os.path.basename(image_path).split(".")[0]
-        image = Image.open(image_path)
-        # work-around method to avoid the "Too many open files" error
-        temp = image.copy()
-        image.close()
-        image = temp
+        # image = Image.open(image_path)
+        # # work-around method to avoid the "Too many open files" error
+        # temp = image.copy()
+        # image.close()
+        # image = temp
 
-        cam_info = CameraInfo(uid=uid, R=R, T=T, FovY=FovY, FovX=FovX, image=image,
-                              image_path=image_path, image_name=image_name, width=width, height=height)
+        cam_info = CameraInfo(
+                            uid=uid, 
+                            R=R, 
+                            T=T, 
+                            FovY=FovY, 
+                            FovX=FovX, 
+                            # image=image,
+                            image_path=image_path, image_name=image_name, width=width, height=height
+                            )
         cam_infos.append(cam_info)
     sys.stdout.write('\n')
     return cam_infos
