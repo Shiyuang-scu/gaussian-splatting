@@ -89,20 +89,20 @@ torch.cuda.empty_cache()
 render_script = "/home/yuang/Desktop/gaussian-splatting/render.py"
 eva_script = "/home/yuang/Desktop/gaussian-splatting/metrics.py"
 
-print(f"------------\nRendering {output_dir}------------\n")
-command = [
-    'python', render_script,
-    '-m', output_dir,
-    '--skip_train',
-    ]
-subprocess.run(command)
-torch.cuda.empty_cache()
+# print(f"------------\nRendering {output_dir}------------\n")
+# command = [
+#     'python', render_script,
+#     '-m', output_dir,
+#     '--skip_train',
+#     ]
+# subprocess.run(command)
+# torch.cuda.empty_cache()
 
-print(f"------------\nEvaluating {output_dir}------------\n")
-command = [
-    'python', eva_script,
-    '-m', output_dir,
-    '-d', 'cpu',
-    ]
-subprocess.run(command)
-torch.cuda.empty_cache()
+# print(f"------------\nEvaluating {output_dir}------------\n")
+# command = [
+#     'python', eva_script,
+#     '-m', output_dir,
+#     '-d', 'cpu',
+#     ]
+# subprocess.run(command)
+# torch.cuda.empty_cache()

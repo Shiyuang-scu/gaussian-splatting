@@ -122,7 +122,7 @@ class Scene:
             interval = length / dataset_size
             index = 0
             selected_train_cameras = []
-            print(len(scene_info.train_cameras))
+            print(len(scene_info.train_cameras), type(scene_info.train_cameras))
             while length < dataset_size and index < length:
                 selected_train_cameras.append(scene_info.train_cameras[int(index)])
                 index += interval
