@@ -51,7 +51,7 @@ output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/a
 dataset_size = n
 # training_set_size = int(dataset_size*0.8)
 training_set_size = dataset_size
-prog_train_interval = 200
+prog_train_interval = 100
 # iteration_num = n * 150
 iteration_num = prog_train_interval
 
