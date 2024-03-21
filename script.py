@@ -77,7 +77,7 @@ command = [
     '--iterations', str(iteration_num),
     '--eval',
     # '--densify_from_iter', str(int(500 * training_set_size/200)), # default is 500, for 200 images dataset
-    '--densify_until_iter', str(int(15_000 * training_set_size/200)), # default is 15_000, for 200 images dataset
+    # '--densify_until_iter', str(int(15_000 * training_set_size/200)), # default is 15_000, for 200 images dataset
     # '--densification_interval', str(int(100 * training_set_size/200)), # default is 100, for 200 images dataset
     '--prog_train_interval', str(prog_train_interval),
     '--dataset_size', str(dataset_size),
