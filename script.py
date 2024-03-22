@@ -97,7 +97,7 @@ print(f"------------------------\nRendering {output_dir}\n----------------------
 command = [
     'python', render_script,
     '-m', output_dir,
-    '--skip_train',
+    # '--skip_train',
     ]
 subprocess.run(command)
 torch.cuda.empty_cache()
