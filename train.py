@@ -54,9 +54,10 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
     progress_bar = tqdm(range(first_iter, train_set_size*150), desc="Training progress")
     first_iter += 1
     
-    for _ in range(150):
+    # for _ in range(150):
+    while total_iteration < 30_000:
         scene.shuffle()
-        print(f"Starting training Iter #{_}...")
+        # print(f"Starting training Iter #{_}...")
         for start in list(range(0, train_set_size, prog_train_interval)):
             no_prog_subset = int(start/prog_train_interval)
 
@@ -131,6 +132,9 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                     # if (iteration in saving_iterations):
                     #     print(f"\n[ITER {iteration}] Saving Gaussians")
                     #     scene.save(iteration)
+                    if (total_iteration in saving_iterations):
+                        print(f"\n[ITER {total_iteration}] Saving Gaussians")
+                        scene.save(total_iteration)
 
                     # # Densification
                     # if iteration < opt.densify_until_iter:
@@ -168,9 +172,16 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                     #         (gaussians.capture(), iteration),
                     #         f"{scene.model_path}/chkpnt{str(iteration)}.pth",
                     #     )
+                    if (total_iteration in checkpoint_iterations):
+                        print(f"\n[ITER {total_iteration}] Saving Checkpoint")
+                        torch.save(
+                            (gaussians.capture(), total_iteration),
+                            f"{scene.model_path}/chkpnt{str(total_iteration)}.pth",
+                        )
 
-            print(f"\n[#{no_prog_subset} sub-set] Saving Gaussians")
-            scene.save(no_prog_subset)
+            # print(f"\n[#{no_prog_subset} sub-set] Saving Gaussians")
+            # scene.save(no_prog_subset)
+                        
     
     # print(f"\n[ITER {total_iteration}] Saving Checkpoint")
     # torch.save(
