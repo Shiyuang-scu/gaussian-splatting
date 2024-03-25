@@ -28,7 +28,7 @@ try:
 except ImportError:
     TENSORBOARD_FOUND = False
 
-def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from, prog_train_interval, dataset_size):
+def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from, prog_train_interval, dataset_size, denoise, denoise_from_iter, denoise_until_iter, denoise_interval, radius, epsilon):
     # train_set_size = int(dataset_size * 0.8)
     train_set_size = dataset_size
     first_iter = 0
@@ -161,7 +161,11 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
                         if total_iteration % opt.opacity_reset_interval == 0 or (dataset.white_background and total_iteration == opt.densify_from_iter):
                             gaussians.reset_opacity()
-
+                    
+                    # [ADD] Denoise
+                    if denoise and denoise_from_iter <= total_iteration <= denoise_until_iter and total_iteration % denoise_interval == 0:
+                        gaussians.denoise(radius, epsilon)
+                            
                     # Optimizer step
                     if iteration < opt.iterations:
                         gaussians.optimizer.step()
@@ -268,11 +272,20 @@ if __name__ == "__main__":
     op = OptimizationParams(parser)
     pp = PipelineParams(parser)
 
+    # [ADD] 
     # large datasets can take a long time to load and make pc freeze
     # so we can save the model and load it again
     # this is the interval at which we save the model
     parser.add_argument("--prog_train_interval", type=int, default = 200) 
     parser.add_argument("--dataset_size", type=int, default = 500) 
+    # [ADD]
+    # perform 3DGS denoising with guided-filter, to make sure that neghboring splats are smooth and linear.
+    parser.add_argument('--denoise', action='store_true', default=False)
+    parser.add_argument('--denoise_from_iter', type=int, default=5_000)
+    parser.add_argument('--denoise_until_iter', type=int, default=30_000)
+    parser.add_argument('--denoise_interval', type=int, default=1_000)
+    parser.add_argument('--denoise_radius', type=float, default=0.05)
+    parser.add_argument('--denoise_epsilon', type=float, default=0.01)
 
     parser.add_argument('--ip', type=str, default="127.0.0.1")
     parser.add_argument('--port', type=int, default=6009)
@@ -293,7 +306,7 @@ if __name__ == "__main__":
     # Start GUI server, configure and run training
     network_gui.init(args.ip, args.port)
     torch.autograd.set_detect_anomaly(args.detect_anomaly)
-    training(lp.extract(args), op.extract(args), pp.extract(args), args.test_iterations, args.save_iterations, args.checkpoint_iterations, args.start_checkpoint, args.debug_from, args.prog_train_interval, args.dataset_size)
+    training(lp.extract(args), op.extract(args), pp.extract(args), args.test_iterations, args.save_iterations, args.checkpoint_iterations, args.start_checkpoint, args.debug_from, args.prog_train_interval, args.dataset_size, args.denoise, args.denoise_from_iter, args.denoise_until_iter, args.denoise_interval, args.denoise_radius, args.denoise_epsilon)
 
     # All done
     print("\nTraining complete.")

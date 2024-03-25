@@ -8,7 +8,7 @@
 #
 # For inquiries contact  george.drettakis@inria.fr
 #
-
+import open3d as o3d
 import torch
 import numpy as np
 from utils.general_utils import inverse_sigmoid, get_expon_lr_func, build_rotation
@@ -206,6 +206,42 @@ class GaussianModel:
         elements[:] = list(map(tuple, attributes))
         el = PlyElement.describe(elements, 'vertex')
         PlyData([el]).write(path)
+
+    
+    def denoise_position(self, radius, epsilon):
+        # read xyz from gaussian model, then create a point cloud
+        pcd = o3d.geometry.PointCloud()
+        # pcd.points = o3d.utility.Vector3dVector(self._xyz.detach().cpu().numpy())
+        pcd.points = o3d.utility.Vector3dVector(self.get_xyz.detach().cpu().numpy())
+
+        kdtree = o3d.geometry.KDTreeFlann(pcd)
+        points_copy = np.array(pcd.points)
+        points = np.asarray(pcd.points)
+        num_points = len(pcd.points)
+
+        for i in range(num_points):
+            k, idx, _ = kdtree.search_radius_vector_3d(pcd.points[i], radius)
+            if k < 3:
+                continue
+
+            neighbors = points[idx, :]
+            mean = np.mean(neighbors, 0)
+            cov = np.cov(neighbors.T)
+            e = np.linalg.inv(cov + epsilon * np.eye(3))
+
+            A = cov @ e
+            b = mean - A @ mean
+
+            points_copy[i] = A @ points[i] + b
+
+        pcd.points = o3d.utility.Vector3dVector(points_copy)
+        
+        xyz_new = nn.Parameter(torch.tensor(np.asarray(pcd.points), dtype=torch.float, device="cuda").requires_grad_(True))
+        
+        optimizable_tensors = self.replace_tensor_to_optimizer(xyz_new, "xyz")
+
+        self._xyz = optimizable_tensors["xyz"]
+
 
     def reset_opacity(self):
         opacities_new = inverse_sigmoid(torch.min(self.get_opacity, torch.ones_like(self.get_opacity)*0.01))
