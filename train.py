@@ -189,7 +189,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
     #     (gaussians.capture(), total_iteration),
     #     f"{scene.model_path}/chkpnt{str(total_iteration)}.pth",
     # )
-                    
+
 def prepare_output_and_logger(args):    
     if not args.model_path:
         if os.getenv('OAR_JOB_ID'):

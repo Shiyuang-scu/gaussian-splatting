@@ -21,6 +21,23 @@ from tqdm import tqdm
 from utils.image_utils import psnr
 from argparse import ArgumentParser
 
+def readImage(render_path, gt_path, device):
+    img = Image.open(render_path)
+    render = img.copy()
+    img.close()
+
+    img = Image.open(gt_path)
+    gt = img.copy()
+    img.close()
+
+    if device == "cuda":
+        render = tf.to_tensor(render).unsqueeze(0)[:, :3, :, :].cuda()
+        gt = tf.to_tensor(gt).unsqueeze(0)[:, :3, :, :].cuda()
+    else:
+        render = tf.to_tensor(render).unsqueeze(0)[:, :3, :, :].cpu()
+        gt = tf.to_tensor(gt).unsqueeze(0)[:, :3, :, :].cpu()
+    return render, gt
+
 def readImages(renders_dir, gt_dir, device):
     renders = []
     gts = []
@@ -58,6 +75,10 @@ def evaluate(model_paths, device):
             for method in os.listdir(test_dir):
                 print("Method:", method)
 
+                ssims = []
+                psnrs = []
+                lpipss = []
+
                 full_dict[scene_dir][method] = {}
                 per_view_dict[scene_dir][method] = {}
                 full_dict_polytopeonly[scene_dir][method] = {}
@@ -66,16 +87,19 @@ def evaluate(model_paths, device):
                 method_dir = test_dir / method
                 gt_dir = method_dir/ "gt"
                 renders_dir = method_dir / "renders"
-                renders, gts, image_names = readImages(renders_dir, gt_dir, device)
+                # renders, gts, image_names = readImages(renders_dir, gt_dir, device)
+                image_names = list(os.listdir(renders_dir))
 
-                ssims = []
-                psnrs = []
-                lpipss = []
+                # for idx in tqdm(range(len(renders)), desc="Metric evaluation progress"):
+                #     ssims.append(ssim(renders[idx], gts[idx]))
+                #     psnrs.append(psnr(renders[idx], gts[idx]))
+                #     lpipss.append(lpips(renders[idx], gts[idx], net_type='vgg'))
+                for idx in tqdm(range(len(image_names)), desc="Metric evaluation progress"):
+                    render, gt = readImage(renders_dir / image_names[idx], gt_dir / image_names[idx], device)
+                    ssims.append(ssim(render, gt))
+                    psnrs.append(psnr(render, gt))
+                    lpipss.append(lpips(render, gt, net_type='vgg'))
 
-                for idx in tqdm(range(len(renders)), desc="Metric evaluation progress"):
-                    ssims.append(ssim(renders[idx], gts[idx]))
-                    psnrs.append(psnr(renders[idx], gts[idx]))
-                    lpipss.append(lpips(renders[idx], gts[idx], net_type='vgg'))
 
                 print("  SSIM : {:>12.7f}".format(torch.tensor(ssims).mean(), ".5"))
                 print("  PSNR : {:>12.7f}".format(torch.tensor(psnrs).mean(), ".5"))
