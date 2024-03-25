@@ -38,15 +38,20 @@ python metrics.py
 
 parser = ArgumentParser(description="Training script parameters")
 parser.add_argument("--size_of_subset", type=int, default = 1000)
+parser.add_argument("--denoise", action="store_true", default = False)
 args = parser.parse_args(sys.argv[1:])
 
 
 
 # Training
 n = args.size_of_subset # number of images in the subset of the dataset
+denoise = args.denoise # whether to denoise the images
 
 source_dir = "/home/yuang/Desktop/3d_gaussian_splat/dataset/source/eyefultower/apartment/"
-output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/apartment/subset_{n}/"
+if denoise:
+    output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/apartment/subset_filter_{n}/"
+else:
+    output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/apartment/subset_{n}/"
 
 dataset_size = n
 # training_set_size = int(dataset_size*0.8)
@@ -69,25 +74,46 @@ train_script = "/home/yuang/Desktop/gaussian-splatting/train.py"
 # If you have a Python program that uses argparse nargs to specify multi-value options 
 # then you need to make sure that each value is its own parameter.
 # https://gist.github.com/CMCDragonkai/0118e112e3d0de377f71bf92efc7ace6
-command = [
-    'python', train_script,
-    '-s', source_dir,
-    '-m', output_dir,
-    '--data_device', device,
-    '--iterations', str(iteration_num),
-    '--eval',
-    # '--densify_from_iter', str(int(500 * training_set_size/200)), # default is 500, for 200 images dataset
-    # '--densify_until_iter', str(int(15_000 * training_set_size/200)), # default is 15_000, for 200 images dataset
-    # '--densification_interval', str(int(100 * training_set_size/200)), # default is 100, for 200 images dataset
-    '--prog_train_interval', str(prog_train_interval),
-    '--dataset_size', str(dataset_size),
-    '--save_iterations'] + [str(iteration) for iteration in save_iter_list] + \
-    ['--test_iterations'] + [str(iteration) for iteration in test_iter_list] + \
-    ['--checkpoint_iterations'] + [str(iteration) for iteration in checkpoint_iter_list] \
-    # + ['--start_checkpoint', checkpoint_path]
+if denoise:
+    command = [
+        'python', train_script,
+        '-s', source_dir,
+        '-m', output_dir,
+        '--data_device', device,
+        '--iterations', str(iteration_num),
+        '--eval',
+        '--denoise',
+        '--prog_train_interval', str(prog_train_interval),
+        '--dataset_size', str(dataset_size),
+        '--save_iterations'] + [str(iteration) for iteration in save_iter_list] + \
+        ['--test_iterations'] + [str(iteration) for iteration in test_iter_list] + \
+        ['--checkpoint_iterations'] + [str(iteration) for iteration in checkpoint_iter_list] \
+        # + ['--start_checkpoint', checkpoint_path]
+else:
+    command = [
+        'python', train_script,
+        '-s', source_dir,
+        '-m', output_dir,
+        '--data_device', device,
+        '--iterations', str(iteration_num),
+        '--eval',
+        # '--densify_from_iter', str(int(500 * training_set_size/200)), # default is 500, for 200 images dataset
+        # '--densify_until_iter', str(int(15_000 * training_set_size/200)), # default is 15_000, for 200 images dataset
+        # '--densification_interval', str(int(100 * training_set_size/200)), # default is 100, for 200 images dataset
+        '--prog_train_interval', str(prog_train_interval),
+        '--dataset_size', str(dataset_size),
+        '--save_iterations'] + [str(iteration) for iteration in save_iter_list] + \
+        ['--test_iterations'] + [str(iteration) for iteration in test_iter_list] + \
+        ['--checkpoint_iterations'] + [str(iteration) for iteration in checkpoint_iter_list] \
+        # + ['--start_checkpoint', checkpoint_path]
 
 subprocess.run(command)
 torch.cuda.empty_cache()
+
+
+
+
+
 
 # Rendering and Evaluating
 render_script = "/home/yuang/Desktop/gaussian-splatting/render.py"
@@ -106,7 +132,7 @@ torch.cuda.empty_cache()
 # command = [
 #     'python', eva_script,
 #     '-m', output_dir,
-#     '-d', 'cpu',
+#     '-d', 'cuda',
 #     ]
 # subprocess.run(command)
 # torch.cuda.empty_cache()
