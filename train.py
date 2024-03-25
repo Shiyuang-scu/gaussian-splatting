@@ -163,7 +163,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                             gaussians.reset_opacity()
                     
                     # [ADD] Denoise
-                    if denoise and denoise_from_iter <= total_iteration <= denoise_until_iter and total_iteration % denoise_interval == 0:
+                    if denoise and denoise_from_iter < total_iteration < denoise_until_iter and total_iteration % denoise_interval == 0:
                         gaussians.denoise(radius, epsilon)
                             
                     # Optimizer step
