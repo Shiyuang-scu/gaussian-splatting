@@ -6,7 +6,7 @@ for size_of_subset in size_of_subset_list:
     print("Running on subset of size", size_of_subset)
     command = [
         'python', "script.py",
-        '--size_of_subset', str(size_of_subset)
+        '--size_of_subset', str(size_of_subset),
         '--denoise',
         ]
 
