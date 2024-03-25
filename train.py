@@ -164,6 +164,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                     
                     # [ADD] Denoise
                     if denoise and denoise_from_iter < total_iteration < denoise_until_iter and total_iteration % denoise_interval == 0:
+                        print(f"\n[ITER {total_iteration}] Denoising")
                         gaussians.denoise(radius, epsilon)
                             
                     # Optimizer step
