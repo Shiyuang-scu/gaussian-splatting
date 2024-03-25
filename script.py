@@ -39,6 +39,11 @@ python metrics.py
 parser = ArgumentParser(description="Training script parameters")
 parser.add_argument("--size_of_subset", type=int, default = 1000)
 parser.add_argument("--denoise", action="store_true", default = False)
+parser.add_argument('--denoise_from_iter', type=int, default=5_000)
+parser.add_argument('--denoise_until_iter', type=int, default=30_000)
+parser.add_argument('--denoise_interval', type=int, default=1_000)
+parser.add_argument('--denoise_radius', type=float, default=0.05)
+parser.add_argument('--denoise_epsilon', type=float, default=0.01)
 args = parser.parse_args(sys.argv[1:])
 
 
@@ -83,6 +88,11 @@ if denoise:
         '--iterations', str(iteration_num),
         '--eval',
         '--denoise',
+        '--denoise_from_iter', str(args.denoise_from_iter),
+        '--denoise_until_iter', str(args.denoise_until_iter),
+        '--denoise_interval', str(args.denoise_interval),
+        '--denoise_radius', str(args.denoise_radius),
+        '--denoise_epsilon', str(args.denoise_epsilon),
         '--prog_train_interval', str(prog_train_interval),
         '--dataset_size', str(dataset_size),
         '--save_iterations'] + [str(iteration) for iteration in save_iter_list] + \
