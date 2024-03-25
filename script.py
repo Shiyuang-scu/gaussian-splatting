@@ -39,7 +39,7 @@ python metrics.py
 parser = ArgumentParser(description="Training script parameters")
 parser.add_argument("--size_of_subset", type=int, default = 1000)
 parser.add_argument("--denoise", action="store_true", default = False)
-parser.add_argument('--denoise_from_iter', type=int, default=5_000)
+parser.add_argument('--denoise_from_iter', type=int, default=0)
 parser.add_argument('--denoise_until_iter', type=int, default=30_000)
 parser.add_argument('--denoise_interval', type=int, default=1_000)
 parser.add_argument('--denoise_radius', type=float, default=0.05)

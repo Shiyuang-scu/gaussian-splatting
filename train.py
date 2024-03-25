@@ -282,7 +282,7 @@ if __name__ == "__main__":
     # [ADD]
     # perform 3DGS denoising with guided-filter, to make sure that neghboring splats are smooth and linear.
     parser.add_argument('--denoise', action='store_true', default=False)
-    parser.add_argument('--denoise_from_iter', type=int, default=5_000)
+    parser.add_argument('--denoise_from_iter', type=int, default=0)
     parser.add_argument('--denoise_until_iter', type=int, default=30_000)
     parser.add_argument('--denoise_interval', type=int, default=1_000)
     parser.add_argument('--denoise_radius', type=float, default=0.05)
