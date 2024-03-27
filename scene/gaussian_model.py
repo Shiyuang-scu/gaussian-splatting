@@ -208,39 +208,61 @@ class GaussianModel:
         PlyData([el]).write(path)
 
     
-    def denoise_position(self, radius, epsilon):
-        # read xyz from gaussian model, then create a point cloud
-        pcd = o3d.geometry.PointCloud()
-        # pcd.points = o3d.utility.Vector3dVector(self._xyz.detach().cpu().numpy())
-        pcd.points = o3d.utility.Vector3dVector(self.get_xyz.detach().cpu().numpy())
+    # def denoise_position(self, radius, epsilon):
+        # # read xyz from gaussian model, then create a point cloud
+        # pcd = o3d.geometry.PointCloud()
+        # # pcd.points = o3d.utility.Vector3dVector(self._xyz.detach().cpu().numpy())
+        # pcd.points = o3d.utility.Vector3dVector(self.get_xyz.detach().cpu().numpy())
 
-        kdtree = o3d.geometry.KDTreeFlann(pcd)
-        points_copy = np.array(pcd.points)
-        points = np.asarray(pcd.points)
-        num_points = len(pcd.points)
+        # kdtree = o3d.geometry.KDTreeFlann(pcd)
+        # points_copy = np.array(pcd.points)
+        # points = np.asarray(pcd.points)
+        # num_points = len(pcd.points)
 
-        for i in range(num_points):
-            k, idx, _ = kdtree.search_radius_vector_3d(pcd.points[i], radius)
-            if k < 3:
-                continue
+        # for i in range(num_points):
+        #     k, idx, _ = kdtree.search_radius_vector_3d(pcd.points[i], radius)
+        #     if k < 3:
+        #         continue
 
-            neighbors = points[idx, :]
-            mean = np.mean(neighbors, 0)
-            cov = np.cov(neighbors.T)
-            e = np.linalg.inv(cov + epsilon * np.eye(3))
+        #     neighbors = points[idx, :]
+        #     mean = np.mean(neighbors, 0)
+        #     cov = np.cov(neighbors.T)
+        #     e = np.linalg.inv(cov + epsilon * np.eye(3))
 
-            A = cov @ e
-            b = mean - A @ mean
+        #     A = cov @ e
+        #     b = mean - A @ mean
 
-            points_copy[i] = A @ points[i] + b
+        #     points_copy[i] = A @ points[i] + b
 
-        pcd.points = o3d.utility.Vector3dVector(points_copy)
+        # pcd.points = o3d.utility.Vector3dVector(points_copy)
         
-        xyz_new = nn.Parameter(torch.tensor(np.asarray(pcd.points), dtype=torch.float, device="cuda").requires_grad_(True))
+        # xyz_new = nn.Parameter(torch.tensor(np.asarray(pcd.points), dtype=torch.float, device="cuda").requires_grad_(True))
         
-        optimizable_tensors = self.replace_tensor_to_optimizer(xyz_new, "xyz")
+        # optimizable_tensors = self.replace_tensor_to_optimizer(xyz_new, "xyz")
 
-        self._xyz = optimizable_tensors["xyz"]
+        # self._xyz = optimizable_tensors["xyz"]
+    def denoise_position(self, gs, radius, neigbor_num_threshold=25):
+            position = self.get_xyz.detach().cpu().numpy()
+
+            opacity = self.get_opacity.detach().cpu().numpy() # gs._opacity.detach().cpu().numpy()
+            opacity_25 = np.percentile(opacity, 60)
+
+            pcd = o3d.geometry.PointCloud()
+            pcd.points = o3d.utility.Vector3dVector(position)
+
+            kdtree = o3d.geometry.KDTreeFlann(pcd)
+            num_points = len(pcd.points)
+            mask_point_indice = []
+
+            for i in range(num_points):
+                k, idx, _ = kdtree.search_radius_vector_3d(pcd.points[i], radius)
+                if k < neigbor_num_threshold and opacity[i] < opacity_25: 
+                    mask_point_indice.append(True)
+                else:
+                    mask_point_indice.append(False)
+            
+            self.prune_points(mask_point_indice)
+
 
 
     def reset_opacity(self):
