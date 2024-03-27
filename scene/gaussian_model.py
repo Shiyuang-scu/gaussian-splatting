@@ -260,6 +260,7 @@ class GaussianModel:
                     mask_point_indice.append(True)
                 else:
                     mask_point_indice.append(False)
+            mask_point_indice = torch.tensor(mask_point_indice, device="cuda", dtype=bool)
             
             self.prune_points(mask_point_indice)
 
