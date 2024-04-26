@@ -29,7 +29,7 @@ class CameraInfo(NamedTuple):
     T: np.array
     FovY: np.array
     FovX: np.array
-    # image: np.array
+    image: np.array
     image_path: str
     image_name: str
     width: int
@@ -108,7 +108,7 @@ def readColmapCameras(cam_extrinsics, cam_intrinsics, images_folder):
                             T=T, 
                             FovY=FovY, 
                             FovX=FovX, 
-                            # image=image,
+                            image=None,
                             image_path=image_path, image_name=image_name, width=width, height=height
                             )
         cam_infos.append(cam_info)
@@ -213,15 +213,15 @@ def readCamerasFromTransforms(path, transformsfile, white_background, extension=
 
             image_path = os.path.join(path, cam_name)
             image_name = Path(cam_name).stem
-            # image = Image.open(image_path)
+            image = Image.open(image_path)
 
-            # im_data = np.array(image.convert("RGBA"))
+            im_data = np.array(image.convert("RGBA"))
 
-            # bg = np.array([1,1,1]) if white_background else np.array([0, 0, 0])
+            bg = np.array([1,1,1]) if white_background else np.array([0, 0, 0])
 
-            # norm_data = im_data / 255.0
-            # arr = norm_data[:,:,:3] * norm_data[:, :, 3:4] + bg * (1 - norm_data[:, :, 3:4])
-            # image = Image.fromarray(np.array(arr*255.0, dtype=np.byte), "RGB")
+            norm_data = im_data / 255.0
+            arr = norm_data[:,:,:3] * norm_data[:, :, 3:4] + bg * (1 - norm_data[:, :, 3:4])
+            image = Image.fromarray(np.array(arr*255.0, dtype=np.byte), "RGB")
             width = frame["w"]
             height = frame["h"]
 
@@ -236,7 +236,7 @@ def readCamerasFromTransforms(path, transformsfile, white_background, extension=
                 FovX = frame["fl_y"]
 
             cam_infos.append(CameraInfo(uid=idx, R=R, T=T, FovY=FovY, FovX=FovX, 
-                                        # image=image,
+                                        image=image,
                             image_path=image_path, image_name=image_name, width=height, height=height))
             
     return cam_infos
