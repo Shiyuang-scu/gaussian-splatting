@@ -37,10 +37,13 @@ python metrics.py
 '''
 
 parser = ArgumentParser(description="Training script parameters")
+parser.add_argument("--nerf", action="store_true", default = False)
+parser.add_argument("--scene_name", type=str, default = "apartment")
+parser.add_argument("--source_dir", type=str, default = "/home/yuang/Desktop/3d_gaussian_splat/dataset/source/eyefultower/apartment/")
 parser.add_argument("--size_of_subset", type=int, default = 1000)
 parser.add_argument("--denoise", action="store_true", default = False)
 parser.add_argument('--denoise_from_iter', type=int, default=0)
-parser.add_argument('--denoise_until_iter', type=int, default=30_000)
+parser.add_argument('--denoise_until_iter', type=int, default=20_000)
 parser.add_argument('--denoise_interval', type=int, default=1_000)
 parser.add_argument('--denoise_radius', type=float, default=0.05)
 parser.add_argument('--denoise_epsilon', type=float, default=0.01)
@@ -51,12 +54,22 @@ args = parser.parse_args(sys.argv[1:])
 # Training
 n = args.size_of_subset # number of images in the subset of the dataset
 denoise = args.denoise # whether to denoise the images
+nerf = args.nerf # whether to use NeRF camera format
+scene_name = args.scene_name # "apartment" "drjohnson" "office1b"
+source_dir = args.source_dir # f"/home/yuang/Desktop/3d_gaussian_splat/dataset/source/eyefultower/{scene_name}/"
 
-source_dir = "/home/yuang/Desktop/3d_gaussian_splat/dataset/source/eyefultower/apartment/"
+
 if denoise:
-    output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/apartment/subset_filter_{n}/"
+    if nerf:
+        output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/{scene_name}/subset_denoise_nerf_{n}/"
+    else:
+        output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/{scene_name}/subset_denoise_{n}/"
 else:
-    output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/apartment/subset_{n}/"
+    if nerf:
+        output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/{scene_name}/subset_nerf_{n}/"
+    else:
+        output_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/{scene_name}/subset_{n}/"
+
 
 dataset_size = n
 # training_set_size = int(dataset_size*0.8)
