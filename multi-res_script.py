@@ -7,9 +7,9 @@ source_root = f"/home/yuang/Desktop/3D_gaussian_splat/dataset/source/db/{scene}"
 output_root = f"/home/yuang/Desktop/3D_gaussian_splat/dataset/pre-trained_model/{scene}"
 resolution_scales = [2, 4, 8]
 
-train_script = "/home/yuang/Desktop/3D_gaussian_splat/train.py"
-render_script = "/home/yuang/Desktop/3D_gaussian_splat/render.py"
-eva_script = "/home/yuang/Desktop/3D_gaussian_splat/metrics.py"
+train_script = "/home/yuang/Desktop/3D_gaussian_splat/gaussian-splatting/train.py"
+render_script = "/home/yuang/Desktop/3D_gaussian_splat/gaussian-splatting/render.py"
+eva_script = "/home/yuang/Desktop/3D_gaussian_splat/gaussian-splatting/metrics.py"
 
 save_iter_list = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000]
 test_iter_list = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000]
