@@ -35,23 +35,23 @@ for res_scale in resolution_scales:
     torch.cuda.empty_cache()
 
 
-    ''' Render 2D images of 3DGS.
-    '''
-    print(f"Rendering 3DGS with resolution scale {res_scale}...")
-    render_command = [
-        'python', render_script,
-        '-m', output_dir,
-        ]
-    subprocess.run(render_command)
-    torch.cuda.empty_cache()
+    # ''' Render 2D images of 3DGS.
+    # '''
+    # print(f"Rendering 3DGS with resolution scale {res_scale}...")
+    # render_command = [
+    #     'python', render_script,
+    #     '-m', output_dir,
+    #     ]
+    # subprocess.run(render_command)
+    # torch.cuda.empty_cache()
 
 
-    '''Evaluate 3DGS: N.B. ground-truth images should come from the original dataset, instead of the downsampled dataset.
-    '''
-    print(f"Evaluating 3DGS with resolution scale {res_scale}...")
-    eva_command = [
-        'python', eva_script,
-        '-m', output_dir,
-        ]
-    subprocess.run(eva_command)
-    torch.cuda.empty_cache()
+    # '''Evaluate 3DGS: N.B. ground-truth images should come from the original dataset, instead of the downsampled dataset.
+    # '''
+    # print(f"Evaluating 3DGS with resolution scale {res_scale}...")
+    # eva_command = [
+    #     'python', eva_script,
+    #     '-m', output_dir,
+    #     ]
+    # subprocess.run(eva_command)
+    # torch.cuda.empty_cache()
