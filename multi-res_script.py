@@ -23,7 +23,7 @@ for res_scale in resolution_scales:
     '''
     print(f"Training 3DGS with resolution scale {res_scale}...")
     render_command = [
-        'python', render_script,
+        'python', train_script,
         '-s', source_dir,
         '-m', output_dir,
         '--data_device', 'cpu',
