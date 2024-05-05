@@ -11,6 +11,7 @@ import json
 from tqdm import tqdm
 from utils.image_utils import psnr
 from argparse import ArgumentParser
+import sys
 
 def readImages(renders_dir, gt_dir):
     renders = []
@@ -33,52 +34,50 @@ def evaluate(model_paths, target_dir, gt_dir, trainOrTest="test"):
     print("")
 
     for scene_dir in model_paths:
-        try:
-            print("Scene:", scene_dir)
-            full_dict[scene_dir] = {}
-            per_view_dict[scene_dir] = {}
-            full_dict_polytopeonly[scene_dir] = {}
-            per_view_dict_polytopeonly[scene_dir] = {}
 
-            test_dir = Path(scene_dir) / "test"
+        print("Scene:", scene_dir)
+        full_dict[scene_dir] = {}
+        per_view_dict[scene_dir] = {}
+        full_dict_polytopeonly[scene_dir] = {}
+        per_view_dict_polytopeonly[scene_dir] = {}
 
-            for method in os.listdir(test_dir):
-                print("Method:", method)
+        test_dir = Path(scene_dir) / "test"
 
-                full_dict[scene_dir][method] = {}
-                per_view_dict[scene_dir][method] = {}
-                full_dict_polytopeonly[scene_dir][method] = {}
-                per_view_dict_polytopeonly[scene_dir][method] = {}
+        for method in os.listdir(test_dir):
+            print("Method:", method)
 
-                renders, gts, image_names = readImages(target_dir, gt_dir)
+            full_dict[scene_dir][method] = {}
+            per_view_dict[scene_dir][method] = {}
+            full_dict_polytopeonly[scene_dir][method] = {}
+            per_view_dict_polytopeonly[scene_dir][method] = {}
 
-                ssims = []
-                psnrs = []
-                lpipss = []
+            renders, gts, image_names = readImages(Path(target_dir), Path(gt_dir))
 
-                for idx in tqdm(range(len(renders)), desc="Metric evaluation progress"):
-                    ssims.append(ssim(renders[idx], gts[idx]))
-                    psnrs.append(psnr(renders[idx], gts[idx]))
-                    lpipss.append(lpips(renders[idx], gts[idx], net_type='vgg'))
+            ssims = []
+            psnrs = []
+            lpipss = []
 
-                print("  SSIM : {:>12.7f}".format(torch.tensor(ssims).mean(), ".5"))
-                print("  PSNR : {:>12.7f}".format(torch.tensor(psnrs).mean(), ".5"))
-                print("  LPIPS: {:>12.7f}".format(torch.tensor(lpipss).mean(), ".5"))
-                print("")
+            for idx in tqdm(range(len(renders)), desc="Metric evaluation progress"):
+                ssims.append(ssim(renders[idx], gts[idx]))
+                psnrs.append(psnr(renders[idx], gts[idx]))
+                lpipss.append(lpips(renders[idx], gts[idx], net_type='vgg'))
 
-                full_dict[scene_dir][method].update({"SSIM": torch.tensor(ssims).mean().item(),
-                                                        "PSNR": torch.tensor(psnrs).mean().item(),
-                                                        "LPIPS": torch.tensor(lpipss).mean().item()})
-                per_view_dict[scene_dir][method].update({"SSIM": {name: ssim for ssim, name in zip(torch.tensor(ssims).tolist(), image_names)},
-                                                            "PSNR": {name: psnr for psnr, name in zip(torch.tensor(psnrs).tolist(), image_names)},
-                                                            "LPIPS": {name: lp for lp, name in zip(torch.tensor(lpipss).tolist(), image_names)}})
+            print("  SSIM : {:>12.7f}".format(torch.tensor(ssims).mean(), ".5"))
+            print("  PSNR : {:>12.7f}".format(torch.tensor(psnrs).mean(), ".5"))
+            print("  LPIPS: {:>12.7f}".format(torch.tensor(lpipss).mean(), ".5"))
+            print("")
 
-            with open(f"{scene_dir}/{trainOrTest}_results.json", 'w') as fp:
-                json.dump(full_dict[scene_dir], fp, indent=True)
-            with open(f"{scene_dir}/{trainOrTest}_per_view.json", 'w') as fp:
-                json.dump(per_view_dict[scene_dir], fp, indent=True)
-        except:
-            print("Unable to compute metrics for model", scene_dir)
+            full_dict[scene_dir][method].update({"SSIM": torch.tensor(ssims).mean().item(),
+                                                    "PSNR": torch.tensor(psnrs).mean().item(),
+                                                    "LPIPS": torch.tensor(lpipss).mean().item()})
+            per_view_dict[scene_dir][method].update({"SSIM": {name: ssim for ssim, name in zip(torch.tensor(ssims).tolist(), image_names)},
+                                                        "PSNR": {name: psnr for psnr, name in zip(torch.tensor(psnrs).tolist(), image_names)},
+                                                        "LPIPS": {name: lp for lp, name in zip(torch.tensor(lpipss).tolist(), image_names)}})
+
+        with open(f"{scene_dir}/{trainOrTest}_results.json", 'w') as fp:
+            json.dump(full_dict[scene_dir], fp, indent=True)
+        with open(f"{scene_dir}/{trainOrTest}_per_view.json", 'w') as fp:
+            json.dump(per_view_dict[scene_dir], fp, indent=True)
 
 
 scene = "drjohnson"
@@ -101,37 +100,38 @@ for res_scale in resolution_scales:
     output_dir = f"{output_root}/{res_scale}/"
     
     '''Train 3DGS based on datasets with different resolutions.
+    python train.py -s /home/yuang/Desktop/3d_gaussian_splat/dataset/source/db/drjohnson_2/  -m /home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/drjohnson/2 --data_device cpu --save_iterations 5000 10000 15000 20000 25000 30000 --checkpoint_iterations 5000 10000 15000 20000 25000 30000 --test_iterations 5000 10000 15000 20000 25000 30000
     '''
-    print(f"Training 3DGS with resolution scale {res_scale}...")
-    render_command = [
-        'python', train_script,
-        '-s', source_dir,
-        '-m', output_dir,
-        '--data_device', 'cpu',
-        '--save_iterations'] + [str(iteration) for iteration in save_iter_list] + \
-        ['--test_iterations'] + [str(iteration) for iteration in test_iter_list] + \
-        ['--checkpoint_iterations'] + [str(iteration) for iteration in checkpoint_iter_list] \
+    # print(f"Training 3DGS with resolution scale {res_scale}...")
+    # render_command = [
+    #     'python', train_script,
+    #     '-s', source_dir,
+    #     '-m', output_dir,
+    #     '--data_device', 'cpu',
+    #     '--save_iterations'] + [str(iteration) for iteration in save_iter_list] + \
+    #     ['--test_iterations'] + [str(iteration) for iteration in test_iter_list] + \
+    #     ['--checkpoint_iterations'] + [str(iteration) for iteration in checkpoint_iter_list] \
         
-    subprocess.run(render_command)
-    torch.cuda.empty_cache()
+    # subprocess.run(render_command)
+    # torch.cuda.empty_cache()
 
 
     ''' Render 2D images of 3DGS.
     '''
-    print(f"Rendering 3DGS with resolution scale {res_scale}...")
-    if res_scale == 1:
-        render_command = [
-            'python', render_script,
-            '-m', output_dir,
-            ]
-    else:
-        render_command = [
-            'python', render_script,
-            '-m', output_dir,
-            '--skip_gt',
-            ]
-    subprocess.run(render_command)
-    torch.cuda.empty_cache()
+    # print(f"Rendering 3DGS with resolution scale {res_scale}...")
+    # if res_scale == 1:
+    #     render_command = [
+    #         'python', render_script,
+    #         '-m', output_dir,
+    #         ]
+    # else:
+    #     render_command = [
+    #         'python', render_script,
+    #         '-m', output_dir,
+    #         '--skip_gt',
+    #         ]
+    # subprocess.run(render_command)
+    # torch.cuda.empty_cache()
 
 
     '''Evaluate 3DGS: N.B. ground-truth images should come from the original dataset, instead of the downsampled dataset.
