@@ -85,7 +85,7 @@ source_root = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/source/db/{scene}"
 output_root = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/{scene}"
 gt_images_dir = f"/home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/{scene}"
 
-resolution_scales = [1, 2, 4, 8]
+resolution_scales = [2, 4, 8]
 
 train_script = "/home/yuang/Desktop/3d_gaussian_splat/gaussian-splatting/train.py"
 render_script = "/home/yuang/Desktop/3d_gaussian_splat/gaussian-splatting/render.py"
@@ -97,41 +97,42 @@ checkpoint_iter_list = [5_000, 10_000, 15_000, 20_000, 25_000, 30_000]
 
 for res_scale in resolution_scales:
     source_dir = f"{source_root}_{res_scale}/"
-    output_dir = f"{output_root}/{res_scale}/"
+    output_dir = f"{output_root}/res_{res_scale}/"
     
     '''Train 3DGS based on datasets with different resolutions.
     python train.py -s /home/yuang/Desktop/3d_gaussian_splat/dataset/source/db/drjohnson_2/  -m /home/yuang/Desktop/3d_gaussian_splat/dataset/pre-trained_model/drjohnson/2 --data_device cpu --save_iterations 5000 10000 15000 20000 25000 30000 --checkpoint_iterations 5000 10000 15000 20000 25000 30000 --test_iterations 5000 10000 15000 20000 25000 30000
     '''
-    # print(f"Training 3DGS with resolution scale {res_scale}...")
-    # render_command = [
-    #     'python', train_script,
-    #     '-s', source_dir,
-    #     '-m', output_dir,
-    #     '--data_device', 'cpu',
-    #     '--save_iterations'] + [str(iteration) for iteration in save_iter_list] + \
-    #     ['--test_iterations'] + [str(iteration) for iteration in test_iter_list] + \
-    #     ['--checkpoint_iterations'] + [str(iteration) for iteration in checkpoint_iter_list] \
+    print(f"Training 3DGS with resolution scale {res_scale}...")
+    render_command = [
+        'python', train_script,
+        '-s', source_dir,
+        '-m', output_dir,
+        '-r', str(res_scale),
+        '--data_device', 'cpu',
+        '--save_iterations'] + [str(iteration) for iteration in save_iter_list] + \
+        ['--test_iterations'] + [str(iteration) for iteration in test_iter_list] + \
+        ['--checkpoint_iterations'] + [str(iteration) for iteration in checkpoint_iter_list] \
         
-    # subprocess.run(render_command)
-    # torch.cuda.empty_cache()
+    subprocess.run(render_command)
+    torch.cuda.empty_cache()
 
 
     ''' Render 2D images of 3DGS.
     '''
-    # print(f"Rendering 3DGS with resolution scale {res_scale}...")
-    # if res_scale == 1:
-    #     render_command = [
-    #         'python', render_script,
-    #         '-m', output_dir,
-    #         ]
-    # else:
-    #     render_command = [
-    #         'python', render_script,
-    #         '-m', output_dir,
-    #         '--skip_gt',
-    #         ]
-    # subprocess.run(render_command)
-    # torch.cuda.empty_cache()
+    print(f"Rendering 3DGS with resolution scale {res_scale}...")
+    if res_scale == 1:
+        render_command = [
+            'python', render_script,
+            '-m', output_dir,
+            ]
+    else:
+        render_command = [
+            'python', render_script,
+            '-m', output_dir,
+            '--skip_gt',
+            ]
+    subprocess.run(render_command)
+    torch.cuda.empty_cache()
 
 
     '''Evaluate 3DGS: N.B. ground-truth images should come from the original dataset, instead of the downsampled dataset.
